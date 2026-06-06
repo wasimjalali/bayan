@@ -1,0 +1,8 @@
+node_modules/
+*.log
+.DS_Store
+
+# local tooling + verification artifacts (icons/*.png are tracked)
+.playwright-mcp/
+/bayan-*.png
+/dari-*.png

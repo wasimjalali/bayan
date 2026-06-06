@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="emerald" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#147A5B"/>
+      <stop offset="1" stop-color="#06382A"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F4DC93"/>
+      <stop offset="0.5" stop-color="#D9B45B"/>
+      <stop offset="1" stop-color="#B5882F"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.32" r="0.8">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.20"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <!-- Crescent = outer disk minus an offset disk; the cut is transparent so
+         the emerald background shows through. -->
+    <mask id="crescent">
+      <rect x="0" y="0" width="128" height="128" fill="black"/>
+      <circle cx="56" cy="64" r="36" fill="white"/>
+      <circle cx="73" cy="57" r="31" fill="black"/>
+    </mask>
+  </defs>
+
+  <rect x="0" y="0" width="128" height="128" rx="28" fill="url(#emerald)"/>
+  <rect x="0" y="0" width="128" height="128" rx="28" fill="url(#glow)"/>
+  <rect x="8" y="8" width="112" height="112" rx="21" fill="none"
+        stroke="url(#gold)" stroke-opacity="0.45" stroke-width="1.5"/>
+
+  <!-- hilāl (crescent moon) -->
+  <rect x="0" y="0" width="128" height="128" fill="url(#gold)" mask="url(#crescent)"/>
+
+  <!-- five-point star in the opening of the crescent -->
+  <path fill="url(#gold)"
+    d="M94,46 L96.94,53.96 L105.41,54.29 L98.76,59.55 L101.05,67.71 L94,63 L86.95,67.71 L89.24,59.55 L82.59,54.29 L91.06,53.96 Z"/>
+</svg>

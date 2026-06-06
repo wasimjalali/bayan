@@ -1,0 +1,169 @@
+/*
+ * Bayān (بیان) — badge + annotation styles. Spec Section 10.
+ *
+ * Injected into the StreamYard page by the content script. These rules style
+ * ONLY elements the extension adds (badges) or classes it sets on comment rows.
+ * They make no assumption about StreamYard's own markup, so a StreamYard layout
+ * change cannot break the look. The native feed is otherwise untouched.
+ *
+ * Brand: deep emerald + gold + ivory. Premium, Islamic, and high-contrast on
+ * StreamYard's dark studio. Badge text is Dari (right-to-left).
+ *
+ * On/off: the popup toggles html.bayan-disabled. Every visible annotation is
+ * gated on html:not(.bayan-disabled), so turning the filter off restores the
+ * native feed exactly (no display/opacity overrides are left behind).
+ *
+ * Font: Vazirmatn (bundled, OFL). The first src resolves inside the extension
+ * (Chrome substitutes __MSG_@@extension_id__ in content-script CSS); the
+ * second is a relative fallback so the demo harness gets the same font.
+ */
+
+@font-face {
+  font-family: "Vazirmatn";
+  src:
+    url("chrome-extension://__MSG_@@extension_id__/fonts/Vazirmatn-Variable.woff2") format("woff2"),
+    url("fonts/Vazirmatn-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+:root {
+  /* palette */
+  --bayan-emerald-1: #169063;
+  --bayan-emerald-2: #0b5a43;
+  --bayan-gold-1: #f0d695;
+  --bayan-gold-2: #c8a24a;
+  --bayan-ink: #06382a;
+  --bayan-ivory: #fbf6e9;
+  --bayan-stone-1: #78715f;
+  --bayan-stone-2: #4e483e;
+  --bayan-amber-1: #d99a3d;
+  --bayan-amber-2: #9c6716;
+
+  /* motion */
+  --bayan-ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --bayan-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* depth */
+  --bayan-shadow-badge: 0 1px 2px rgba(0, 0, 0, 0.25), 0 2px 8px rgba(0, 0, 0, 0.18);
+  --bayan-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+/*
+ * The badge. Sized for an operator reading a busy feed at a glance: larger
+ * type than v0, generous padding, a status dot for language-neutral
+ * recognition, and a soft brand-tinted glow per kind.
+ */
+.syqf-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-inline-start: 8px;
+  margin-block: 2px;
+  padding: 4px 13px;
+  border-radius: 999px;
+  font-family: "Vazirmatn", "IRANSans", "Segoe UI", Tahoma, sans-serif;
+  font-size: 15px;
+  font-weight: 650;
+  line-height: 1.6;
+  letter-spacing: 0.1px;
+  font-variant-numeric: tabular-nums;
+  vertical-align: middle;
+  white-space: nowrap;
+  color: var(--bayan-ivory);
+  direction: rtl;
+  unicode-bidi: isolate;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: var(--bayan-shadow-badge), var(--bayan-highlight);
+  -webkit-font-smoothing: antialiased;
+  animation: syqf-pop 0.35s var(--bayan-ease-spring);
+}
+
+/* A small status dot for instant recognition (language-neutral, RTL-safe). */
+.syqf-badge::before {
+  content: "";
+  flex: 0 0 auto;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.8;
+  box-shadow: 0 0 6px currentColor;
+}
+
+@keyframes syqf-pop {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Continuation merge: two comments shown as one question. Emerald = safe/info. */
+.syqf-badge--joined {
+  background: linear-gradient(180deg, var(--bayan-emerald-1), var(--bayan-emerald-2));
+  box-shadow: var(--bayan-shadow-badge), 0 2px 10px rgba(20, 122, 91, 0.35), var(--bayan-highlight);
+}
+
+html:not(.bayan-disabled) .syqf-joined {
+  border-inline-start: 3px solid var(--bayan-emerald-1);
+  padding-inline-start: 9px;
+  border-radius: 5px;
+  background-color: rgba(20, 122, 91, 0.07);
+}
+
+/* "asked N times" — the hero fact. A premium gold pill with dark ink text. */
+.syqf-count {
+  background: linear-gradient(180deg, var(--bayan-gold-1), var(--bayan-gold-2));
+  color: var(--bayan-ink);
+  font-weight: 750;
+  border-color: rgba(120, 90, 20, 0.45);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.2),
+    0 2px 12px rgba(200, 162, 74, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+/* A near-duplicate that was marked but NOT hidden. Muted stone = low priority. */
+.syqf-badge--dup {
+  background: linear-gradient(180deg, var(--bayan-stone-1), var(--bayan-stone-2));
+}
+
+/* A second, self-contained question from the same person. Amber = needs a look. */
+.syqf-badge--extra {
+  background: linear-gradient(180deg, var(--bayan-amber-1), var(--bayan-amber-2));
+  box-shadow: var(--bayan-shadow-badge), 0 2px 10px rgba(217, 154, 61, 0.35), var(--bayan-highlight);
+}
+
+/* Ambiguous cases are dimmed, never hidden (human stays in the loop). */
+html:not(.bayan-disabled) .syqf-dim {
+  opacity: 0.55;
+  transition: opacity 0.2s var(--bayan-ease-out);
+}
+
+/* Exact duplicates may be collapsed (hidden). Data is retained in state. */
+html:not(.bayan-disabled) .syqf-collapsed {
+  display: none !important;
+}
+
+/* Filter off: hide every badge; the gated rules above stop applying, so the
+ * feed renders exactly as StreamYard drew it. */
+html.bayan-disabled .syqf-badge {
+  display: none !important;
+}
+
+/* Primary (clean first question): no visible change in v1. */
+.syqf-primary {
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .syqf-badge {
+    animation: none;
+  }
+  html:not(.bayan-disabled) .syqf-dim {
+    transition: none;
+  }
+}

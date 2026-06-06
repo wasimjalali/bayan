@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<!--
+  popup.html - the bar that opens when the Bayān icon is clicked. One job:
+  turn the filter on or off. The state is persisted in chrome.storage.local;
+  the content script listens and applies it to the live feed instantly.
+  All visible strings come from CONFIG.LABELS (popup.js fills them in).
+-->
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <title>بیان</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header class="brand">
+      <img class="brand__logo" src="../icons/icon48.png" alt="" />
+      <div class="brand__names">
+        <h1 class="brand__fa">بیان</h1>
+        <p class="brand__en">Live Q&amp;A Filter</p>
+      </div>
+      <span id="status-pill" class="pill" hidden></span>
+    </header>
+
+    <main class="card">
+      <div class="switch-row">
+        <div class="switch-text">
+          <p id="tagline" class="switch-title"></p>
+          <p id="hint" class="switch-hint"></p>
+        </div>
+        <button id="toggle" class="switch" role="switch" aria-checked="true">
+          <span class="switch__knob"></span>
+        </button>
+      </div>
+    </main>
+
+    <footer class="foot">
+      <span id="foot-text"></span>
+      <span id="version" class="foot__version"></span>
+    </footer>
+
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>

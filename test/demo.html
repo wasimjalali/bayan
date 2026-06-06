@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Bayān — Simulation Harness</title>
+    <link rel="icon" href="../icons/icon32.png" />
+    <!-- Real badge styles from the extension, so this looks exactly like live. -->
+    <link rel="stylesheet" href="../styles.css" />
+    <style>
+      /* Vazirmatn for the harness itself (styles.css already loads it for badges). */
+      @font-face {
+        font-family: "Vazirmatn";
+        src: url("../fonts/Vazirmatn-Variable.woff2") format("woff2");
+        font-weight: 100 900;
+        font-display: swap;
+      }
+
+      :root {
+        color-scheme: light;
+        --bg: #f4f1e9;
+        --card: #fff;
+        --line: #e6e1d4;
+        --ink: #1f2a26;
+        --muted: #76705f;
+        --emerald: #0e6b51;
+        --emerald-bright: #169063;
+        --emerald-dark: #084536;
+        --gold: #c8a24a;
+        --gold-light: #f0d695;
+        --ivory: #fbf6e9;
+
+        --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+        --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+        --shadow-1: 0 1px 2px rgba(31, 42, 38, 0.05);
+        --shadow-2: 0 1px 2px rgba(31, 42, 38, 0.05), 0 6px 18px rgba(31, 42, 38, 0.07);
+        --shadow-3: 0 2px 4px rgba(31, 42, 38, 0.06), 0 14px 34px rgba(31, 42, 38, 0.1);
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font: 14px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background:
+          radial-gradient(110% 70% at 100% 0%, rgba(14, 107, 81, 0.06), transparent 55%),
+          radial-gradient(90% 60% at 0% 100%, rgba(200, 162, 74, 0.09), transparent 50%),
+          var(--bg);
+        color: var(--ink);
+      }
+
+      /* --- Header: emerald band, gold hairline, extension on/off switch --- */
+      header {
+        padding: 26px 28px;
+        background:
+          radial-gradient(120% 180% at 0% 0%, rgba(240, 214, 149, 0.18), transparent 45%),
+          linear-gradient(135deg, var(--emerald), var(--emerald-dark));
+        border-bottom: 3px solid var(--gold);
+        color: var(--ivory);
+        display: flex;
+        align-items: center;
+        gap: 18px;
+      }
+      header .brand-logo {
+        width: 56px; height: 56px; border-radius: 13px; flex: 0 0 auto;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+      }
+      header .brand-copy { flex: 1; min-width: 0; }
+      header h1 {
+        margin: 0 0 4px; font-size: 26px; font-weight: 800; letter-spacing: 0.2px;
+      }
+      header h1 .ar {
+        font-family: "Vazirmatn", Tahoma, sans-serif;
+        color: var(--gold-light); margin-inline-start: 10px; font-weight: 800;
+      }
+      header p { margin: 0; color: rgba(251, 246, 233, 0.85); font-size: 13.5px; max-width: 64ch; }
+      #config-dump {
+        margin-top: 10px;
+        display: inline-block;
+        font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
+        color: rgba(251, 246, 233, 0.92);
+        background: rgba(0, 0, 0, 0.22);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        padding: 5px 10px;
+        border-radius: 7px;
+      }
+
+      /* The extension on/off switch (simulates the popup toggle: it flips
+         html.bayan-disabled, exactly what the real popup does on StreamYard). */
+      .ext-toggle-wrap {
+        flex: 0 0 auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 7px;
+        padding: 12px 18px;
+        background: rgba(0, 0, 0, 0.18);
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: 13px;
+      }
+      .ext-toggle-label {
+        font-size: 11px; font-weight: 600; letter-spacing: 0.8px;
+        text-transform: uppercase; color: rgba(251, 246, 233, 0.8);
+      }
+      #ext-status { font-weight: 800; color: var(--gold-light); }
+      .switch {
+        position: relative;
+        width: 54px; height: 31px; padding: 0;
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        border-radius: 999px;
+        background: linear-gradient(180deg, #b9b3a4, #8a8474);
+        cursor: pointer;
+        transition: background 0.25s var(--ease-out), box-shadow 0.25s var(--ease-out);
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+      }
+      .switch[aria-checked="true"] {
+        background: linear-gradient(180deg, var(--gold-light), var(--gold));
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2), 0 0 14px rgba(240, 214, 149, 0.45);
+      }
+      .switch .knob {
+        position: absolute; top: 3px; left: 3px;
+        width: 24px; height: 24px; border-radius: 50%;
+        background: linear-gradient(180deg, #fff, #f1ece0);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+        transition: left 0.25s var(--ease-spring);
+      }
+      .switch[aria-checked="true"] .knob { left: calc(100% - 27px); }
+
+      main { max-width: 1100px; margin: 0 auto; padding: 30px 24px 10px; display: grid; gap: 34px; }
+
+      /* Eyebrow section labels with a gold accent dot. */
+      .col h2 {
+        font-size: 17px; margin: 0 0 6px; font-weight: 750;
+        display: flex; align-items: center; gap: 8px;
+      }
+      .col h2::before {
+        content: ""; width: 8px; height: 8px; border-radius: 50%;
+        background: linear-gradient(180deg, var(--gold-light), var(--gold));
+        box-shadow: 0 0 6px rgba(200, 162, 74, 0.6);
+      }
+      .col > p { margin: 0 0 16px; color: var(--muted); max-width: 78ch; }
+
+      button {
+        font: inherit;
+        font-weight: 650;
+        padding: 10px 18px;
+        border: 1px solid transparent;
+        border-radius: 10px;
+        background: linear-gradient(180deg, var(--emerald-bright), var(--emerald-dark));
+        color: var(--ivory);
+        cursor: pointer;
+        box-shadow: var(--shadow-1), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        transition: transform 0.15s var(--ease-out), box-shadow 0.15s var(--ease-out);
+      }
+      button:hover { box-shadow: var(--shadow-2), inset 0 1px 0 rgba(255, 255, 255, 0.15); }
+      button:active { transform: scale(0.97); }
+      button.secondary {
+        background: #fff; color: var(--ink); border-color: var(--line); box-shadow: var(--shadow-1);
+      }
+      button:disabled { opacity: 0.5; cursor: default; transform: none; }
+      button:focus-visible, .switch:focus-visible, input:focus-visible, select:focus-visible {
+        outline: 2px solid var(--gold);
+        outline-offset: 2px;
+      }
+
+      .demo-group {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 16px 18px;
+        margin-bottom: 18px;
+        box-shadow: var(--shadow-2);
+        animation: group-in 0.45s var(--ease-out) both;
+      }
+      @keyframes group-in {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: none; }
+      }
+      .demo-group h3 { margin: 0 0 3px; font-size: 14.5px; font-weight: 700; }
+      .demo-expect { margin: 0 0 12px; color: var(--muted); font-size: 12.5px; }
+
+      .demo-panel {
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        max-height: 340px;
+        overflow-y: auto;
+        padding: 6px;
+        background: #fafbfc;
+        box-shadow: inset 0 1px 4px rgba(31, 42, 38, 0.04);
+      }
+      .demo-comment {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+        padding: 10px 12px;
+        border-radius: 9px;
+        animation: row-in 0.4s var(--ease-out) both;
+      }
+      @keyframes row-in {
+        from { opacity: 0; transform: translateY(6px); }
+        to { opacity: 1; transform: none; }
+      }
+      .demo-comment + .demo-comment { border-top: 1px solid var(--line); }
+      .demo-avatar {
+        flex: 0 0 auto;
+        width: 32px; height: 32px;
+        border-radius: 50%;
+        background: linear-gradient(180deg, #e3e9f7, #ccd6ee);
+        color: #2f4a86;
+        font-size: 11px; font-weight: 800;
+        display: flex; align-items: center; justify-content: center;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 1px 2px rgba(31, 42, 38, 0.12);
+      }
+      /* Dari is right-to-left. */
+      .demo-body { min-width: 0; direction: rtl; text-align: right; flex: 1; }
+      .demo-author {
+        font-family: "Vazirmatn", Tahoma, sans-serif;
+        font-weight: 750; font-size: 15px; margin-inline-end: 8px;
+      }
+      .demo-platform { color: var(--muted); font-size: 12px; text-transform: capitalize; }
+      .demo-text {
+        margin-top: 3px;
+        direction: rtl;
+        font-family: "Vazirmatn", "IRANSans", "Tahoma", sans-serif;
+        font-size: 17px;
+        font-weight: 450;
+        line-height: 1.9;
+      }
+
+      .sandbox-form {
+        display: grid;
+        grid-template-columns: 150px 130px 1fr auto auto;
+        gap: 9px;
+        margin-bottom: 12px;
+      }
+      .sandbox-form input, .sandbox-form select {
+        font: inherit;
+        padding: 9px 12px;
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        background: #fff;
+        transition: border-color 0.15s var(--ease-out), box-shadow 0.15s var(--ease-out);
+      }
+      .sandbox-form input:focus, .sandbox-form select:focus {
+        border-color: var(--emerald);
+        box-shadow: 0 0 0 3px rgba(14, 107, 81, 0.12);
+      }
+      .sandbox-form input[dir="auto"] {
+        font-family: "Vazirmatn", Tahoma, sans-serif;
+        font-size: 15px;
+      }
+      .hint { color: var(--muted); font-size: 12.5px; margin: 0 0 12px; }
+      .hint code { background: var(--bg); padding: 1px 6px; border-radius: 5px; }
+
+      footer.signoff {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 18px 24px 30px;
+        text-align: center;
+        color: var(--muted);
+        font-size: 12.5px;
+      }
+      footer.signoff .rule {
+        display: flex; align-items: center; gap: 14px; margin-bottom: 12px;
+      }
+      footer.signoff .rule::before, footer.signoff .rule::after {
+        content: ""; flex: 1; height: 1px;
+        background: linear-gradient(90deg, transparent, var(--line), transparent);
+      }
+      footer.signoff .ar { font-family: "Vazirmatn", Tahoma, sans-serif; font-weight: 700; color: var(--gold); }
+
+      @media (prefers-reduced-motion: reduce) {
+        .demo-comment, .demo-group { animation: none; }
+        button, .switch, .switch .knob { transition: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <img class="brand-logo" src="../icons/icon128.png" alt="Bayān logo" />
+      <div class="brand-copy">
+        <h1>Bayān<span class="ar">بیان</span></h1>
+        <p>Live Q&amp;A filter for Dari/Persian streams. Real matching core + UI, fed by simulated comments. No StreamYard, no live audience needed.</p>
+        <span id="config-dump"></span>
+      </div>
+      <div class="ext-toggle-wrap">
+        <span class="ext-toggle-label">Extension <span id="ext-status">ON</span></span>
+        <button id="ext-toggle" class="switch" role="switch" aria-checked="true" title="Simulates the popup on/off switch">
+          <span class="knob"></span>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <section class="col">
+        <h2>Scripted scenarios (the acceptance cases)</h2>
+        <p>Plays each scenario into its own mini comments panel and annotates it live. Compare what you see against the "Expect" line. Flip the header switch any time: off restores every panel to a clean, native-looking feed (exactly what the popup does on StreamYard).</p>
+        <button id="play-all">Run all scenarios</button>
+        <div id="scenarios" style="margin-top:18px"></div>
+      </section>
+
+      <section class="col">
+        <h2>Live sandbox (type your own comments)</h2>
+        <p>One shared session with real timing, so you can recreate any situation by hand.</p>
+        <div class="sandbox-form">
+          <input id="sb-handle" placeholder="handle" value="احمد" dir="auto" />
+          <select id="sb-platform">
+            <option value="youtube">youtube</option>
+            <option value="facebook">facebook</option>
+            <option value="instagram">instagram</option>
+          </select>
+          <input id="sb-text" placeholder="یک سوال بنویسید و Enter بزنید" dir="auto" />
+          <button id="sb-send">Send</button>
+          <button id="sb-reset" class="secondary">Reset</button>
+        </div>
+        <p class="hint">
+          Try: send the same question from two handles &rarr; <b>duplicate</b>. &nbsp;
+          Send a fragment ending in <code>و</code> from <code>احمد</code>, then another from <code>احمد</code> within 25s &rarr; <b>joined</b>. &nbsp;
+          Send two finished questions (each ending in <code>؟</code>) from <code>احمد</code> &rarr; second is flagged as a <b>2nd question</b>.
+        </p>
+        <div id="sb-panel" class="demo-panel"></div>
+      </section>
+    </main>
+
+    <footer class="signoff">
+      <div class="rule"><span class="ar">بیان</span></div>
+      Bayān simulation harness &middot; the matching core and badge styles are the real thing
+    </footer>
+
+    <script type="module" src="./demo.js"></script>
+  </body>
+</html>

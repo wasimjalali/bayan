@@ -1,0 +1,12 @@
+{
+  "name": "bayan",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Bayān — Chrome MV3 extension that cleans live Dari/Persian Q&A comments in StreamYard (dedup + continuation grouping + one-question-per-person).",
+  "type": "module",
+  "scripts": {
+    "test": "node test/run-tests.js",
+    "demo": "python3 -m http.server 8000"
+  },
+  "license": "UNLICENSED"
+}
