@@ -7,13 +7,20 @@
  * All visible text comes from CONFIG.LABELS (Dari), and badges render
  * right-to-left so Persian shows correctly. Confidence tiers (Section 10 + the
  * v1 human-in-the-loop rule):
+ *   - Greeting             -> left untouched (a salutation, never a question).
  *   - Exact duplicate     -> collapse (hide) + count badge on the original, but
  *                            ONLY if AUTO_COLLAPSE_EXACT_DUPLICATES.
  *   - Fuzzy / near dup     -> marked + dimmed, NEVER hidden.
  *   - Continuation merge   -> "joined" badge, both fragments stay visible.
- *   - Extra (2nd) question -> "2nd question" badge + dimmed, NEVER hidden.
+ *   - Extra (2nd) question -> collapsed (hidden) ONLY when HIDE_EXTRA_QUESTIONS
+ *                            AND it is clearly separated in time (outside the
+ *                            continuation window). An extra INSIDE the window is
+ *                            ambiguous (a possible undetected continuation) and is
+ *                            only dimmed, never hidden.
  *
- * AUTO_HIDE_ANYTHING_AMBIGUOUS stays false in v1: nothing ambiguous is hidden.
+ * Hiding is reversible: collapsed rows keep their data in state and the popup
+ * OFF switch restores StreamYard's full native feed. Fuzzy duplicates are still
+ * never hidden (AUTO_HIDE_ANYTHING_AMBIGUOUS stays false).
  */
 
 const ANNOTATED_ATTR = "data-syqf-annotated";
@@ -66,6 +73,11 @@ export function render(decision, config) {
   const dir = config.UI_DIRECTION;
 
   switch (decision.type) {
+    case "greeting":
+      // A pure greeting/honorific. Not a question: leave the row exactly as
+      // StreamYard drew it. No badge, no dim, no hide.
+      break;
+
     case "primary":
       node.classList.add("syqf-primary");
       break;
@@ -88,8 +100,18 @@ export function render(decision, config) {
     }
 
     case "extra":
-      node.classList.add("syqf-dim");
-      ensureBadge(node, "extra", config.LABELS.secondQuestion, dir);
+      if (config.HIDE_EXTRA_QUESTIONS && !decision.withinWindow) {
+        // A clearly separate, later second question: filter it out of the feed so
+        // the teacher reads one question per person. Data is retained in state;
+        // the popup OFF switch reveals it again.
+        node.classList.add("syqf-collapsed");
+      } else {
+        // Inside the continuation window (ambiguous) or hiding disabled: dim it
+        // but keep it visible, so a continuation we failed to detect is never
+        // hidden. Cost-asymmetry: never hide a possible real question.
+        node.classList.add("syqf-dim");
+        ensureBadge(node, "extra", config.LABELS.secondQuestion, dir);
+      }
       break;
 
     default:

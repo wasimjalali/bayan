@@ -112,4 +112,22 @@ export const STREAMS = {
     comment("کریم", "youtube", "آیا نماز خواندن در حال نشسته جایز است؟", 0),
     comment("كريم", "youtube", "حکم روزه گرفتن در سفر چیست؟", 60000),
   ],
+
+  // Continuation CAP: one question dribbled across THREE in-window comments, each
+  // with a continuation cue. Only the FIRST continuation may merge (question + 1).
+  // The third comment is blocked (flagged extra) even though it still looks like a
+  // continuation, so one person can't turn a question into a 3+ part run.
+  cappedContinuation: [
+    comment("حلیمه", "youtube", "سوال من در مورد روزه است که اگر کسی", 0),
+    comment("حلیمه", "youtube", "در ماه رمضان مریض شود و نتواند روزه بگیرد", 4000),
+    comment("حلیمه", "youtube", "و بعد از رمضان هم وقت نکند که قضایش را بگیرد چه باید بکند؟", 8000),
+  ],
+
+  // A greeting-only comment first, then the person's real question well outside
+  // the merge window. The greeting must NOT consume the question slot, so the
+  // real question stays primary instead of being filtered out as an extra.
+  greetingThenQuestion: [
+    comment("یونس", "youtube", "السلام علیکم", 0),
+    comment("یونس", "youtube", "حکم نماز قضا چیست؟", 60000),
+  ],
 };

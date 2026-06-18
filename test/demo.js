@@ -90,7 +90,7 @@ const SCENARIOS = [
   {
     key: "secondQuestionLater",
     title: "4. A genuine second question, later in the session",
-    expect: "Second is flagged as a 2nd question and dimmed. Never hidden.",
+    expect: "Second is filtered out (hidden) so the teacher reads one question per person. Toggle the extension OFF to reveal it.",
   },
   {
     key: "twoDifferentHandles",
@@ -100,7 +100,17 @@ const SCENARIOS = [
   {
     key: "distinctSecondInsideWindow",
     title: "4b. A separate second question only 5s later (no continuation cue)",
-    expect: "Still flagged as a 2nd question. Timing alone doesn't merge – a cue is required.",
+    expect: "Flagged as a 2nd question, but dimmed (not hidden) because it's inside the window – it might be a continuation we couldn't detect. We never hide inside the window.",
+  },
+  {
+    key: "cappedContinuation",
+    title: "6. One person dribbles a question across THREE comments",
+    expect: "Question + one continuation are kept and joined. The third piece is over the cap, so it's flagged and dimmed (still in-window, so never hidden). One person can't flood the feed as one question.",
+  },
+  {
+    key: "greetingThenQuestion",
+    title: "7. A greeting first, then the real question a minute later",
+    expect: "The greeting is left alone and never counts as the person's question, so the real question still comes through clean.",
   },
   {
     key: "crossPlatformDuplicate",
@@ -211,6 +221,6 @@ document.getElementById("sb-text").addEventListener("keydown", (e) => {
 
 // show the active thresholds so it's clear what's being applied
 document.getElementById("config-dump").textContent =
-  `window ${CONFIG.CONTINUATION_WINDOW_MS / 1000}s · fuzzy ≥ ${CONFIG.FUZZY_THRESHOLD} · ` +
-  `auto-collapse exact dupes: ${CONFIG.AUTO_COLLAPSE_EXACT_DUPLICATES} · ` +
-  `auto-hide ambiguous: ${CONFIG.AUTO_HIDE_ANYTHING_AMBIGUOUS}`;
+  `window ${CONFIG.CONTINUATION_WINDOW_MS / 1000}s · max ${CONFIG.MAX_COMMENTS_PER_QUESTION} comments/question · ` +
+  `fuzzy ≥ ${CONFIG.FUZZY_THRESHOLD} · auto-collapse exact dupes: ${CONFIG.AUTO_COLLAPSE_EXACT_DUPLICATES} · ` +
+  `hide extra questions: ${CONFIG.HIDE_EXTRA_QUESTIONS}`;

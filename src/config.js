@@ -13,6 +13,14 @@ export const CONFIG = {
   CONTINUATION_WINDOW_MS: 25000,
   NEAR_LIMIT_CHARS: 200,
 
+  // The most comments a single logical question may occupy: the question itself
+  // plus its continuation fragments. 2 = the original + ONE continuation. A
+  // further fragment is blocked (treated as an extra question) even if it looks
+  // like a continuation, so one person can never flood the teacher with a
+  // three-, four-, five-part run. This is the teacher's "one continuation only"
+  // rule. Raise it only if real questions routinely arrive in 3+ pieces.
+  MAX_COMMENTS_PER_QUESTION: 2,
+
   // Persian connecting words. Used two ways: a previous fragment ENDING in one
   // is a continuation cue, and a new fragment STARTING with one is a cue too.
   // و (and) که (that) یا (or) اما/ولی (but) چون/زیرا (because) تا (so that)
@@ -59,6 +67,14 @@ export const CONFIG = {
   AUTO_COLLAPSE_EXACT_DUPLICATES: true,
   // Must stay false in v1: ambiguous cases are marked, never hidden.
   AUTO_HIDE_ANYTHING_AMBIGUOUS: false,
+
+  // The teacher wants a clean feed: one question per person, no repeats, nothing
+  // extra to read. When true, a confirmed second question from the same handle
+  // (and any over-the-cap continuation fragment) is collapsed out of the feed
+  // instead of just dimmed. The data is retained in state and the popup OFF
+  // switch reveals StreamYard's full native feed, so nothing is ever destroyed.
+  // Set to false to keep them visible-but-dimmed instead (the old v1 behavior).
+  HIDE_EXTRA_QUESTIONS: true,
 
   // Right-to-left UI for Persian. Counts use Western digits (3) for legibility,
   // since Persian-Indic digits (۳) are hard to read at badge size. Flip to true

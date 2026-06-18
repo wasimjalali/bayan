@@ -88,27 +88,67 @@ function mergeContinuation(block, comment) {
  * Run one comment through the full pipeline. Mutates `state`. Returns a decision
  * the UI (and tests) act on:
  *
+ *   { type: 'greeting',     comment }                  // salutation, not a question
  *   { type: 'continuation', comment, block }
  *   { type: 'duplicate',    comment, target, count }
  *   { type: 'primary',      comment, block }
- *   { type: 'extra',        comment, block }
+ *   { type: 'extra',        comment, block, withinWindow }  // withinWindow=true => dim only, never hide
  */
 export function processComment(comment, state, config) {
   // 1 + 2. Normalize. Attach the derived fields to the comment.
-  const { matchKey, displayText } = normalize(comment.displayText, config);
+  const { matchKey, displayText, isGreetingOnly } = normalize(comment.displayText, config);
   comment.matchKey = matchKey;
   comment.displayText = displayText;
+
+  // 2b. Pre-filter: a comment that is ONLY a greeting/honorific («سلام»،
+  // «السلام علیکم») is a salutation, not a question. It must never consume the
+  // person's one question slot, anchor a duplicate, or be hidden as an extra,
+  // otherwise a viewer who greets first would have their REAL question filtered
+  // out. Leave it exactly as-is and stop. This sits before the pipeline and does
+  // not affect the fixed order for real questions.
+  if (isGreetingOnly) {
+    return { type: "greeting", comment };
+  }
 
   const key = identityKey(comment);
   const record = getOrCreateHandle(state, key);
 
-  // 3. Continuation check against this handle's open block. Merge and stop.
-  if (isContinuation(record.open, comment, config)) {
+  // 3. Continuation check against this handle's open block. Merge and stop, but
+  // only while the block is under the cap. Once it already holds
+  // MAX_COMMENTS_PER_QUESTION comments (the question plus its one allowed
+  // continuation), a further fragment is NOT merged even if it looks like a
+  // continuation: it falls through to be treated as an extra question. This is
+  // what stops one person turning a single question into a three- or four-part
+  // run that the teacher has to wade through.
+  const atFragmentCap =
+    record.open && record.open.fragmentCount >= config.MAX_COMMENTS_PER_QUESTION;
+
+  if (!atFragmentCap && isContinuation(record.open, comment, config)) {
     mergeContinuation(record.open, comment);
+    // A fragment that continues an already-flagged EXTRA question is itself an
+    // extra, but it arrived inside the window (it passed the continuation test),
+    // so it is ambiguous and must be dimmed, never hidden. A fragment of the kept
+    // primary question shows the "joined" badge.
+    if (record.open.status === "extra") {
+      return { type: "extra", comment, block: record.open, withinWindow: true };
+    }
     return { type: "continuation", comment, block: record.open };
   }
 
-  // Not a continuation: the open block's window has ended. Close it.
+  // Capture, BEFORE closing the block, whether this comment landed inside the
+  // continuation window of the handle's still-open block. An "extra" inside that
+  // window is ambiguous (a continuation we failed to detect, or an over-the-cap
+  // fragment of a real question) and must be DIMMED, never hidden. Only an extra
+  // clearly OUTSIDE the window is a genuine, separate second question that is
+  // safe to filter out of the feed. This is the cost-asymmetry invariant: inside
+  // the window, ambiguity never resolves toward hiding.
+  const openAtEntry = record.open;
+  const withinWindow =
+    !!openAtEntry &&
+    comment.timestamp - openAtEntry.lastTimestamp <= config.CONTINUATION_WINDOW_MS;
+
+  // Not a continuation (or the block is at its cap): the open block's window has
+  // ended. Close it.
   record.open = null;
 
   // 4. Duplicate check against the recent signature store (across all handles).
@@ -132,8 +172,10 @@ export function processComment(comment, state, config) {
   // The handle already used its one logical question -> flag this as extra.
   // Still open a block so a split of THIS extra question merges instead of
   // double-flagging, and still register its signature so others can dedup it.
+  // `withinWindow` tells the UI whether this is safe to hide (clearly separate,
+  // later) or must only be dimmed (ambiguous, inside the window).
   const block = openBlock(comment, "extra");
   record.open = block;
   registerSignature(comment, state, config);
-  return { type: "extra", comment, block };
+  return { type: "extra", comment, block, withinWindow };
 }

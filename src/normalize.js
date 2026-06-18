@@ -8,9 +8,12 @@
  * that away, the duplicate detector would never match them.
  *
  * Output:
- *   matchKey    - aggressively folded, used ONLY for matching (dedup).
- *   displayText - original text, used for display AND continuation cue detection
- *                 (script, punctuation and ZWNJ must survive for correct display).
+ *   matchKey      - aggressively folded, used ONLY for matching (dedup).
+ *   displayText   - original text, used for display AND continuation cue detection
+ *                   (script, punctuation and ZWNJ must survive for correct display).
+ *   isGreetingOnly - true when the WHOLE comment was honorifics/greeting (nothing
+ *                   left after stripping). Such a comment is not a question, so the
+ *                   pipeline must not let it consume a person's one question slot.
  */
 
 // Arabic -> Persian letter folding, plus hamza-carrier simplification. Keys are
@@ -81,7 +84,11 @@ export function normalize(text, config) {
   // pre-strip key so unrelated greetings aren't all collapsed into one signature.
   const matchKey = stripped.length > 0 ? stripped : key;
 
-  return { matchKey, displayText };
+  // The comment carried real content but it was ALL greeting/honorific, leaving
+  // nothing once stripped. That is a salutation, not a question.
+  const isGreetingOnly = key.length > 0 && stripped.length === 0;
+
+  return { matchKey, displayText, isGreetingOnly };
 }
 
 /**

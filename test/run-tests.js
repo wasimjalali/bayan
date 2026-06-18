@@ -207,5 +207,52 @@ test("same person, handle typed on two keyboards => second question flagged extr
 });
 
 // =====================================================================
+group("Continuation cap & greeting pre-filter (new requirements)");
+
+test("continuation is capped: question + ONE continuation kept, a third in-window fragment is blocked", () => {
+  const { decisions } = runStream(STREAMS.cappedContinuation);
+  assert.equal(decisions[0].type, "primary");
+  assert.equal(decisions[1].type, "continuation");
+  assert.equal(decisions[1].block.fragmentCount, 2);
+  // The third comment still LOOKS like a continuation but is over the cap, so it
+  // must be blocked (flagged extra), not merged into the question.
+  assert.equal(decisions[2].type, "extra");
+  // ...but it landed INSIDE the window, so it is dimmed (visible), NEVER hidden.
+  // It may be the genuine tail of a real question; we must not destroy it.
+  assert.equal(decisions[2].withinWindow, true);
+});
+
+test("a clearly separate, later second question is safe to HIDE (outside the window)", () => {
+  const { decisions } = runStream(STREAMS.secondQuestionLater);
+  assert.equal(decisions[1].type, "extra");
+  assert.equal(decisions[1].withinWindow, false); // outside window => hidden
+});
+
+test("a second comment INSIDE the window is only dimmed, never hidden (cost-asymmetry)", () => {
+  const { decisions } = runStream(STREAMS.distinctSecondInsideWindow);
+  assert.equal(decisions[1].type, "extra");
+  assert.equal(decisions[1].withinWindow, true); // inside window => dimmed, not hidden
+});
+
+test("MAX_COMMENTS_PER_QUESTION is honored as the cap value", () => {
+  assert.equal(CONFIG.MAX_COMMENTS_PER_QUESTION, 2);
+});
+
+test("a greeting-only comment does not consume the person's one question slot", () => {
+  const { decisions } = runStream(STREAMS.greetingThenQuestion);
+  assert.equal(decisions[0].type, "greeting");
+  // The real question, asked later, survives as primary instead of being
+  // filtered out as the person's 'second' comment.
+  assert.equal(decisions[1].type, "primary");
+});
+
+test("a bare greeting normalizes to isGreetingOnly", () => {
+  assert.equal(normalize("سلام", CONFIG).isGreetingOnly, true);
+  assert.equal(normalize("السلام علیکم", CONFIG).isGreetingOnly, true);
+  // a real question is never a greeting, even with a leading honorific
+  assert.equal(normalize("سلام استاد، حکم روزه چیست؟", CONFIG).isGreetingOnly, false);
+});
+
+// =====================================================================
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exitCode = failed > 0 ? 1 : 0;
