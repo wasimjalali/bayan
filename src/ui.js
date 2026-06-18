@@ -12,11 +12,11 @@
  *                            ONLY if AUTO_COLLAPSE_EXACT_DUPLICATES.
  *   - Fuzzy / near dup     -> marked + dimmed, NEVER hidden.
  *   - Continuation merge   -> "joined" badge, both fragments stay visible.
- *   - Extra (2nd) question -> collapsed (hidden) ONLY when HIDE_EXTRA_QUESTIONS
- *                            AND it is clearly separated in time (outside the
- *                            continuation window). An extra INSIDE the window is
- *                            ambiguous (a possible undetected continuation) and is
- *                            only dimmed, never hidden.
+ *   - Extra (2nd) question -> collapsed (hidden) whenever HIDE_EXTRA_QUESTIONS, so
+ *                            the teacher never reads a second question. Opt-in
+ *                            exception (DIM_IN_WINDOW_EXTRAS): an extra INSIDE the
+ *                            continuation window is dimmed instead of hidden, as a
+ *                            safety net against an undetected continuation.
  *
  * Hiding is reversible: collapsed rows keep their data in state and the popup
  * OFF switch restores StreamYard's full native feed. Fuzzy duplicates are still
@@ -99,20 +99,25 @@ export function render(decision, config) {
       break;
     }
 
-    case "extra":
-      if (config.HIDE_EXTRA_QUESTIONS && !decision.withinWindow) {
-        // A clearly separate, later second question: filter it out of the feed so
-        // the teacher reads one question per person. Data is retained in state;
-        // the popup OFF switch reveals it again.
-        node.classList.add("syqf-collapsed");
-      } else {
-        // Inside the continuation window (ambiguous) or hiding disabled: dim it
-        // but keep it visible, so a continuation we failed to detect is never
-        // hidden. Cost-asymmetry: never hide a possible real question.
+    case "extra": {
+      // By default EVERY extra (a second question, or an over-the-cap fragment)
+      // is hidden, so the teacher never spends time on it. The only exception is
+      // opt-in: with DIM_IN_WINDOW_EXTRAS, an extra that arrived INSIDE the
+      // continuation window is dimmed instead of hidden, because it might be a
+      // continuation we failed to detect (cost-asymmetry safety). Off by default.
+      const keepVisible =
+        !config.HIDE_EXTRA_QUESTIONS ||
+        (config.DIM_IN_WINDOW_EXTRAS && decision.withinWindow);
+      if (keepVisible) {
         node.classList.add("syqf-dim");
         ensureBadge(node, "extra", config.LABELS.secondQuestion, dir);
+      } else {
+        // Filter it out of the feed entirely. Data is retained in state; the
+        // popup OFF switch reveals StreamYard's full native feed again.
+        node.classList.add("syqf-collapsed");
       }
       break;
+    }
 
     default:
       break;

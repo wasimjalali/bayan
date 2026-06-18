@@ -92,7 +92,7 @@ function mergeContinuation(block, comment) {
  *   { type: 'continuation', comment, block }
  *   { type: 'duplicate',    comment, target, count }
  *   { type: 'primary',      comment, block }
- *   { type: 'extra',        comment, block, withinWindow }  // withinWindow=true => dim only, never hide
+ *   { type: 'extra',        comment, block, withinWindow }  // withinWindow flags an in-window (ambiguous) extra
  */
 export function processComment(comment, state, config) {
   // 1 + 2. Normalize. Attach the derived fields to the comment.

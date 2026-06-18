@@ -100,12 +100,12 @@ const SCENARIOS = [
   {
     key: "distinctSecondInsideWindow",
     title: "4b. A separate second question only 5s later (no continuation cue)",
-    expect: "Flagged as a 2nd question, but dimmed (not hidden) because it's inside the window – it might be a continuation we couldn't detect. We never hide inside the window.",
+    expect: "Treated as a 2nd question and hidden, so the teacher never reads it. (A safety flag can keep in-window ones dimmed instead, if a real split ever gets hidden.)",
   },
   {
     key: "cappedContinuation",
     title: "6. One person dribbles a question across THREE comments",
-    expect: "Question + one continuation are kept and joined. The third piece is over the cap, so it's flagged and dimmed (still in-window, so never hidden). One person can't flood the feed as one question.",
+    expect: "Question + one continuation are kept and joined. The third piece is over the cap, so it's hidden. One person can't flood the feed as one long question.",
   },
   {
     key: "greetingThenQuestion",
@@ -223,4 +223,4 @@ document.getElementById("sb-text").addEventListener("keydown", (e) => {
 document.getElementById("config-dump").textContent =
   `window ${CONFIG.CONTINUATION_WINDOW_MS / 1000}s · max ${CONFIG.MAX_COMMENTS_PER_QUESTION} comments/question · ` +
   `fuzzy ≥ ${CONFIG.FUZZY_THRESHOLD} · auto-collapse exact dupes: ${CONFIG.AUTO_COLLAPSE_EXACT_DUPLICATES} · ` +
-  `hide extra questions: ${CONFIG.HIDE_EXTRA_QUESTIONS}`;
+  `hide extra questions: ${CONFIG.HIDE_EXTRA_QUESTIONS} · dim in-window extras: ${CONFIG.DIM_IN_WINDOW_EXTRAS}`;

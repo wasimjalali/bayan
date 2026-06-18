@@ -217,21 +217,24 @@ test("continuation is capped: question + ONE continuation kept, a third in-windo
   // The third comment still LOOKS like a continuation but is over the cap, so it
   // must be blocked (flagged extra), not merged into the question.
   assert.equal(decisions[2].type, "extra");
-  // ...but it landed INSIDE the window, so it is dimmed (visible), NEVER hidden.
-  // It may be the genuine tail of a real question; we must not destroy it.
+  // It landed inside the window (withinWindow=true). Hidden by default; the
+  // DIM_IN_WINDOW_EXTRAS safety flag can keep it dimmed-but-visible instead.
   assert.equal(decisions[2].withinWindow, true);
 });
 
-test("a clearly separate, later second question is safe to HIDE (outside the window)", () => {
+test("a clearly separate, later second question is flagged extra, withinWindow=false", () => {
   const { decisions } = runStream(STREAMS.secondQuestionLater);
   assert.equal(decisions[1].type, "extra");
-  assert.equal(decisions[1].withinWindow, false); // outside window => hidden
+  // Outside the window: an unambiguous second question. Hidden in every mode.
+  assert.equal(decisions[1].withinWindow, false);
 });
 
-test("a second comment INSIDE the window is only dimmed, never hidden (cost-asymmetry)", () => {
+test("a quick second comment inside the window is flagged extra, withinWindow=true", () => {
   const { decisions } = runStream(STREAMS.distinctSecondInsideWindow);
   assert.equal(decisions[1].type, "extra");
-  assert.equal(decisions[1].withinWindow, true); // inside window => dimmed, not hidden
+  // Inside the window: hidden by default, but this flag lets DIM_IN_WINDOW_EXTRAS
+  // keep it visible-but-dimmed if a live session shows real questions vanishing.
+  assert.equal(decisions[1].withinWindow, true);
 });
 
 test("MAX_COMMENTS_PER_QUESTION is honored as the cap value", () => {

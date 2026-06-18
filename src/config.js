@@ -76,6 +76,15 @@ export const CONFIG = {
   // Set to false to keep them visible-but-dimmed instead (the old v1 behavior).
   HIDE_EXTRA_QUESTIONS: true,
 
+  // Safety lever for the live-test phase. When true, an extra that lands INSIDE
+  // the continuation window is only DIMMED, not hidden, because it MIGHT be a
+  // continuation the detector missed (hiding a real question is the costliest
+  // mistake). Default false: hide every extra, in or out of the window, which is
+  // what the teacher wants - he never sees a second question at all. Flip to true
+  // only if a live session shows a real question disappearing; then a quick
+  // second comment stays visible-but-dim instead of vanishing.
+  DIM_IN_WINDOW_EXTRAS: false,
+
   // Right-to-left UI for Persian. Counts use Western digits (3) for legibility,
   // since Persian-Indic digits (۳) are hard to read at badge size. Flip to true
   // if you prefer Persian digits.
