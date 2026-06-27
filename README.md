@@ -1,4 +1,6 @@
-# Bayān (بیان) — Live Q&A Filter for StreamYard
+# Bayān (بیان) - Live Q&A Filter for StreamYard
+
+**Clean up your live stream's Q&A comments as they come in.**
 
 **Bayān** (Arabic/Quranic: *clear exposition, eloquence, clarity*) is a Chrome (Manifest V3) extension that cleans the live comment feed during a StreamYard Q&A session. It is built for **Dari / Persian** comments: the audience asks questions in Dari, and the teacher answers them orally. It runs while you stream and does three things in real time:
 
