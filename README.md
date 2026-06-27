@@ -130,3 +130,7 @@ The build is complete and the logic is proven. Two operator steps remain because
 
 1. Confirm the real selectors on a live studio (spec Section 12), drop them into `SELECTORS` in `src/config.js`, and set `SELECTORS.CONFIRMED: true`.
 2. Tune thresholds against a real or recorded session using the table above.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
