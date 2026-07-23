@@ -8,13 +8,13 @@
  *
  * Everything here fails safe. If we are not on a studio, if selectors are
  * unconfirmed, or if the comments container never appears, the extension does
- * nothing visible and logs one clear [SYQF] line. It never corrupts the feed.
+ * nothing visible and logs one clear [Bayān] line. It never corrupts the feed.
  */
 (function () {
   "use strict";
 
   const TAG = "[Bayān]";
-  const VERSION = "0.1.0";
+  const VERSION = chrome.runtime?.getManifest?.().version ?? "?";
 
   // Process detected comments in small debounced batches so a burst of comments
   // can't thrash layout (spec Risk 4).
@@ -22,6 +22,10 @@
   // How long to wait for the comments panel to appear before giving up.
   const CONTAINER_POLL_MS = 1000;
   const CONTAINER_POLL_MAX = 30;
+  // How often to check that the observed container is still in the DOM.
+  // StreamYard is a SPA: a re-render can replace the comments panel wholesale,
+  // which silently kills the MutationObserver. The watchdog notices and re-attaches.
+  const CONTAINER_RECHECK_MS = 3000;
   // Marks comment nodes we've already handled so we never reprocess them.
   const SEEN_ATTR = "data-syqf-seen";
 
@@ -94,7 +98,7 @@
       return;
     }
 
-    const state = stateMod.createState();
+    let state = stateMod.createState();
     const pending = new Set();
     let scheduled = false;
 
@@ -127,19 +131,45 @@
       console.log(`${TAG} comments container found; observing for new comments.`);
 
       // Seed state from comments already on screen, then watch for new ones.
-      for (const node of dom.collectCommentNodes(container)) pending.add(node);
+      // Clearing the seen-marker matters on RE-attach (after a container
+      // replacement): rows that survived the re-render must be reprocessed into
+      // the fresh state, and ui.render is idempotent so that is safe.
+      for (const node of dom.collectCommentNodes(container)) {
+        node.removeAttribute(SEEN_ATTR);
+        pending.add(node);
+      }
       schedule();
 
       const observer = new MutationObserver((mutations) => {
         for (const m of mutations) {
           for (const added of m.addedNodes) {
+            // The added node may BE a comment row, sit INSIDE one, or be a
+            // wrapper CONTAINING several rows (batch renders do this).
             const node = dom.closestCommentNode(added);
-            if (node) pending.add(node);
+            if (node) {
+              pending.add(node);
+            } else {
+              for (const inner of dom.commentNodesWithin(added)) pending.add(inner);
+            }
           }
         }
         schedule();
       });
       observer.observe(container, { childList: true, subtree: true });
+
+      // Watchdog: if a StreamYard re-render replaces the panel, the observer
+      // goes silent forever. Detect it, reset to a fresh state, and re-scan the
+      // new panel from scratch (the old annotations died with the old nodes).
+      const watchdog = setInterval(() => {
+        if (container.isConnected) return;
+        clearInterval(watchdog);
+        observer.disconnect();
+        pending.clear();
+        state = stateMod.createState();
+        console.warn(`${TAG} comments container left the DOM (StreamYard re-render); re-attaching.`);
+        attempts = 0;
+        tryFind();
+      }, CONTAINER_RECHECK_MS);
     };
 
     // The comments panel can mount after the page settles, so poll briefly.

@@ -123,6 +123,21 @@ export function processComment(comment, state, config) {
   const atFragmentCap =
     record.open && record.open.fragmentCount >= config.MAX_COMMENTS_PER_QUESTION;
 
+  // 3a. Double-send guard. The same person re-sending the SAME text (identical
+  // matchKey after folding) is a duplicate, never a continuation: nobody
+  // continues a question by repeating it verbatim, so this cannot be the split
+  // question the continuation-first order protects. Merging it would double the
+  // block's text and burn the one continuation slot. Collapse it onto the
+  // existing signature and leave the block OPEN, so a genuine continuation
+  // arriving after the re-send can still merge.
+  if (record.open && comment.matchKey && comment.matchKey === record.open.matchKey) {
+    const dup = checkDuplicate(comment.matchKey, state, config);
+    if (dup.isDuplicate) {
+      collapseOnto(dup.entry, comment);
+      return { type: "duplicate", kind: dup.kind, comment, target: dup.entry, count: dup.entry.count };
+    }
+  }
+
   if (!atFragmentCap && isContinuation(record.open, comment, config)) {
     mergeContinuation(record.open, comment);
     // A fragment that continues an already-flagged EXTRA question is itself an

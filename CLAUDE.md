@@ -19,9 +19,9 @@ A Manifest V3 Chrome extension that cleans a StreamYard live Q&A comment feed in
 
 2. **Selectors live in two files only.** Every StreamYard-specific selector belongs in `src/config.js` (the selector constants) and `src/dom.js` (extraction logic). No selector, class name, or DOM-shape assumption may appear anywhere else. This is the layer most likely to break, so it is isolated on purpose.
 
-3. **Pipeline order is fixed:** continuation check → duplicate check → one-question-per-person. Never reorder. Continuation-first is what stops a split question from being wrongly flagged or wrongly deduplicated.
+3. **Pipeline order is fixed:** continuation check → duplicate check → one-question-per-person. Never reorder. Continuation-first is what stops a split question from being wrongly flagged or wrongly deduplicated. One narrow exception, on purpose: a re-send with a matchKey IDENTICAL to the handle's open block collapses as a duplicate before the continuation check, because a verbatim repeat can never be a genuine split (see the double-send guard in `grouping.js`).
 
-4. **Fail safe, never corrupt the feed.** If selectors stop matching, the extension does nothing visible and logs a clear `[SYQF]` console warning. A `try/catch` that exists to *fail safe around DOM reads* is allowed here (it is spec-mandated); a `try/catch` that silently swallows a logic bug is not.
+4. **Fail safe, never corrupt the feed.** If selectors stop matching, the extension does nothing visible and logs a clear `[Bayān]` console warning. A `try/catch` that exists to *fail safe around DOM reads* is allowed here (it is spec-mandated); a `try/catch` that silently swallows a logic bug is not.
 
 5. **Human in the loop (v1).** Only high-confidence exact duplicates may auto-collapse (`AUTO_COLLAPSE_EXACT_DUPLICATES`). Everything ambiguous (continuation merges, flagged second questions) is marked visually, never hidden. `AUTO_HIDE_ANYTHING_AMBIGUOUS` must stay `false` in v1.
 
@@ -43,7 +43,7 @@ A Manifest V3 Chrome extension that cleans a StreamYard live Q&A comment feed in
 ## How to verify
 
 - Matching core: `npm test` (runs the Node test runner against the mock streams). Must cover acceptance criteria 1-5.
-- Browser load: load unpacked at `chrome://extensions`, open a StreamYard studio, check the Console for `[SYQF]` lines. Criteria 6-7 (fail-safe + native featuring still works) are verified live.
+- Browser load: load unpacked at `chrome://extensions`, open a StreamYard studio, check the Console for `[Bayān]` lines. Criteria 6-7 (fail-safe + native featuring still works) are verified live.
 - "Done" means `npm test` is green. Skipping it is not done.
 
 ## Build phases (spec Section 14)

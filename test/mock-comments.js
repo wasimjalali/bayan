@@ -123,6 +123,18 @@ export const STREAMS = {
     comment("حلیمه", "youtube", "و بعد از رمضان هم وقت نکند که قضایش را بگیرد چه باید بکند؟", 8000),
   ],
 
+  // Double-send: the same person sends the SAME text twice inside the window
+  // (impatient double-tap on send). The first fragment ends on the connector
+  // «که» with no terminal punctuation - the strongest continuation cue - but an
+  // identical re-send must collapse as a duplicate, never merge (that would
+  // double the text and burn the one continuation slot). A genuine continuation
+  // sent AFTER the re-send must still merge.
+  doubleSend: [
+    comment("طاهر", "youtube", "سوال من در مورد زکات است که", 0),
+    comment("طاهر", "youtube", "سوال من در مورد زکات است که", 2000),
+    comment("طاهر", "youtube", "آیا بر پول کاغذی هم زکات واجب است؟", 6000),
+  ],
+
   // A greeting-only comment first, then the person's real question well outside
   // the merge window. The greeting must NOT consume the question slot, so the
   // real question stays primary instead of being filtered out as an extra.

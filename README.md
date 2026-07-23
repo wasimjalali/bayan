@@ -26,7 +26,7 @@ Because we read the page instead of an API, a StreamYard layout change can break
 2. Turn on **Developer mode** (top right).
 3. Click **Load unpacked** and select this project folder (the one with `manifest.json`).
 4. Open a StreamYard studio (`https://streamyard.com/...`) with the comments panel visible.
-5. Open DevTools (`Cmd+Option+I` on Mac) and check the Console. You should see lines tagged `[SYQF]`.
+5. Open DevTools (`Cmd+Option+I` on Mac) and check the Console. You should see lines tagged `[Bayān]`.
 
 Click the Bayān icon in the toolbar to open the popup: one switch turns the filter on or off (persisted, applied to the live feed instantly). Off restores StreamYard's native feed exactly. Everything else is configured in `src/config.js`; there is no settings screen in v1.
 
@@ -64,7 +64,7 @@ Cost asymmetry we design around: wrongly merging two questions just gives you a 
 
 ## Human in the loop (v1)
 
-Only high-confidence **exact** duplicates auto-collapse. Everything ambiguous (continuation merges, flagged second questions) is marked visually, never hidden. You stay the final judge.
+Only high-confidence **exact** duplicates auto-collapse. A confirmed second question from the same person is also hidden by default (`HIDE_EXTRA_QUESTIONS`), because the teacher asked for a strict one-question-per-person feed; flip the flag to keep them visible-but-dimmed, or set `DIM_IN_WINDOW_EXTRAS: true` to keep just the ambiguous in-window ones visible. Everything else that is ambiguous (continuation merges, fuzzy near-duplicates) is marked visually, never hidden. Hiding is reversible: the data stays in state, and the popup OFF switch restores StreamYard's full native feed instantly. You stay the final judge.
 
 ## Testing the matching core
 
@@ -90,7 +90,7 @@ Comments are read as Dari/Persian (the two share one script, so both work). Befo
 - `HONORIFICS_TO_STRIP` - greetings/titles peeled off the front (written in folded Persian: `ک` not `ك`, `ی` not `ي`).
 - `CONNECTOR_WORDS` - Persian words that signal a continuation.
 
-The badges render right-to-left. Counts show in Persian digits (toggle with `USE_PERSIAN_DIGITS_IN_UI`).
+The badges render right-to-left. Counts show Western digits by default for legibility at badge size; set `USE_PERSIAN_DIGITS_IN_UI: true` for Persian digits.
 
 ## Tuning (Phase 6)
 
@@ -121,7 +121,7 @@ This project is built in phases (spec Section 14). Current status:
 
 - [x] Phase 1: Skeleton (manifest + content script logging on streamyard.com)
 - [x] Phase 2: DOM discovery layer built with clearly-marked placeholder selectors (`SELECTORS.CONFIRMED: false`). Real selectors still need confirming on a live studio.
-- [x] Phase 3: Matching core, proven on mocks (`npm test`: 24/24, acceptance criteria 1-5)
+- [x] Phase 3: Matching core, proven on mocks (`npm test`: 32/32, acceptance criteria 1-5)
 - [x] Phase 4: Core wired to the live DOM (observer + pipeline + fail-safe; gated behind `CONFIRMED`)
 - [x] Phase 5: UI layer (in-place annotation with confidence tiers)
 - [~] Phase 6: Tuning playbook + centralized knobs ready. Live threshold tuning needs a real session (see Tuning above).
