@@ -37,16 +37,18 @@ function paint(enabled) {
 let enabled = true;
 
 if (hasStorage) {
-  chrome.storage.local
-    .get(STORAGE_KEYS.enabled)
-    .then((items) => {
+  chrome.storage.local.get(STORAGE_KEYS.enabled).then(
+    (items) => {
       enabled = items[STORAGE_KEYS.enabled] !== false; // default: enabled
       paint(enabled);
-    })
-    .catch(() => {
+    },
+    // Rejection handler only (not a chained catch), so an exception inside
+    // paint() above can't trigger a second paint call here.
+    () => {
       console.warn("[Bayān] could not read the saved state; showing enabled.");
       paint(enabled);
-    });
+    }
+  );
 } else {
   console.warn(
     "[Bayān] chrome.storage unavailable (preview mode); the switch is not persisted."

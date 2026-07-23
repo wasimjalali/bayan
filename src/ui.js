@@ -97,10 +97,10 @@ export function render(decision, config) {
       const original = originalNodeOf(decision);
 
       // Cost-asymmetry guard: if the original row is gone from the DOM
-      // (virtualized scroll or a re-render pruned it), this row is the only
-      // visible copy of the question. Never hide it; adopt it as the new
-      // representative so the count badge lands somewhere the teacher can see.
-      if (!original || !original.isConnected) {
+      // (virtualized scroll or a re-render pruned it), or this row IS the
+      // representative already, it is the only visible copy of the question.
+      // Never hide it; adopt it so the count badge lands somewhere visible.
+      if (!original || original === node || !original.isConnected) {
         if (decision.target?.firstComment) decision.target.firstComment.el = node;
         setCountBadge(node, decision.count, config);
         break;
