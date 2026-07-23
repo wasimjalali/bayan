@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Bayān — Simulation Harness</title>
+    <title>Bayān - Simulation Harness</title>
     <link rel="icon" href="../icons/icon32.png" />
     <!-- Real badge styles from the extension, so this looks exactly like live. -->
     <link rel="stylesheet" href="../styles.css" />
@@ -30,29 +30,28 @@
         --gold-light: #f0d695;
         --ivory: #fbf6e9;
 
-        --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
-        --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+        /* the dark "studio window": StreamYard-like surfaces the badges live on */
+        --studio: #141c19;
+        --studio-line: rgba(251, 246, 233, 0.09);
+        --studio-ink: #ece7d9;
+        --studio-muted: #9aa39d;
+
+        --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
         --shadow-1: 0 1px 2px rgba(31, 42, 38, 0.05);
         --shadow-2: 0 1px 2px rgba(31, 42, 38, 0.05), 0 6px 18px rgba(31, 42, 38, 0.07);
-        --shadow-3: 0 2px 4px rgba(31, 42, 38, 0.06), 0 14px 34px rgba(31, 42, 38, 0.1);
       }
       * { box-sizing: border-box; }
       body {
         margin: 0;
         font: 14px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        background:
-          radial-gradient(110% 70% at 100% 0%, rgba(14, 107, 81, 0.06), transparent 55%),
-          radial-gradient(90% 60% at 0% 100%, rgba(200, 162, 74, 0.09), transparent 50%),
-          var(--bg);
+        background: var(--bg);
         color: var(--ink);
       }
 
       /* --- Header: emerald band, gold hairline, extension on/off switch --- */
       header {
         padding: 26px 28px;
-        background:
-          radial-gradient(120% 180% at 0% 0%, rgba(240, 214, 149, 0.18), transparent 45%),
-          linear-gradient(135deg, var(--emerald), var(--emerald-dark));
+        background: var(--emerald-dark);
         border-bottom: 3px solid var(--gold);
         color: var(--ivory);
         display: flex;
@@ -106,36 +105,25 @@
         width: 54px; height: 31px; padding: 0;
         border: 1px solid rgba(0, 0, 0, 0.2);
         border-radius: 999px;
-        background: linear-gradient(180deg, #b9b3a4, #8a8474);
+        background: #8a8474;
         cursor: pointer;
-        transition: background 0.25s var(--ease-out), box-shadow 0.25s var(--ease-out);
-        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+        transition: background-color 0.2s var(--ease-out);
       }
       .switch[aria-checked="true"] {
-        background: linear-gradient(180deg, var(--gold-light), var(--gold));
-        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2), 0 0 14px rgba(240, 214, 149, 0.45);
+        background: var(--gold);
       }
       .switch .knob {
         position: absolute; top: 3px; left: 3px;
         width: 24px; height: 24px; border-radius: 50%;
-        background: linear-gradient(180deg, #fff, #f1ece0);
+        background: #fff;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
-        transition: left 0.25s var(--ease-spring);
+        transition: left 0.2s var(--ease-out);
       }
       .switch[aria-checked="true"] .knob { left: calc(100% - 27px); }
 
       main { max-width: 1100px; margin: 0 auto; padding: 30px 24px 10px; display: grid; gap: 34px; }
 
-      /* Eyebrow section labels with a gold accent dot. */
-      .col h2 {
-        font-size: 17px; margin: 0 0 6px; font-weight: 750;
-        display: flex; align-items: center; gap: 8px;
-      }
-      .col h2::before {
-        content: ""; width: 8px; height: 8px; border-radius: 50%;
-        background: linear-gradient(180deg, var(--gold-light), var(--gold));
-        box-shadow: 0 0 6px rgba(200, 162, 74, 0.6);
-      }
+      .col h2 { font-size: 17px; margin: 0 0 6px; font-weight: 750; }
       .col > p { margin: 0 0 16px; color: var(--muted); max-width: 78ch; }
 
       button {
@@ -144,13 +132,13 @@
         padding: 10px 18px;
         border: 1px solid transparent;
         border-radius: 10px;
-        background: linear-gradient(180deg, var(--emerald-bright), var(--emerald-dark));
+        background: var(--emerald);
         color: var(--ivory);
         cursor: pointer;
-        box-shadow: var(--shadow-1), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        box-shadow: var(--shadow-1);
         transition: transform 0.15s var(--ease-out), box-shadow 0.15s var(--ease-out);
       }
-      button:hover { box-shadow: var(--shadow-2), inset 0 1px 0 rgba(255, 255, 255, 0.15); }
+      button:hover { box-shadow: var(--shadow-2); }
       button:active { transform: scale(0.97); }
       button.secondary {
         background: #fff; color: var(--ink); border-color: var(--line); box-shadow: var(--shadow-1);
@@ -177,14 +165,16 @@
       .demo-group h3 { margin: 0 0 3px; font-size: 14.5px; font-weight: 700; }
       .demo-expect { margin: 0 0 12px; color: var(--muted); font-size: 12.5px; }
 
+      /* The studio window: dark like StreamYard's real comment column, so the
+         badges are judged against the surface they will actually live on. */
       .demo-panel {
-        border: 1px solid var(--line);
+        border: 1px solid var(--studio-line);
         border-radius: 10px;
         max-height: 340px;
         overflow-y: auto;
         padding: 6px;
-        background: #fafbfc;
-        box-shadow: inset 0 1px 4px rgba(31, 42, 38, 0.04);
+        background: var(--studio);
+        color: var(--studio-ink);
       }
       .demo-comment {
         display: flex;
@@ -192,30 +182,30 @@
         align-items: flex-start;
         padding: 10px 12px;
         border-radius: 9px;
-        animation: row-in 0.4s var(--ease-out) both;
+        animation: row-in 0.25s var(--ease-out) both;
       }
       @keyframes row-in {
         from { opacity: 0; transform: translateY(6px); }
         to { opacity: 1; transform: none; }
       }
-      .demo-comment + .demo-comment { border-top: 1px solid var(--line); }
+      .demo-comment + .demo-comment { border-top: 1px solid var(--studio-line); }
       .demo-avatar {
         flex: 0 0 auto;
         width: 32px; height: 32px;
         border-radius: 50%;
-        background: linear-gradient(180deg, #e3e9f7, #ccd6ee);
-        color: #2f4a86;
+        background: rgba(251, 246, 233, 0.12);
+        color: var(--studio-ink);
         font-size: 11px; font-weight: 800;
         display: flex; align-items: center; justify-content: center;
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 1px 2px rgba(31, 42, 38, 0.12);
       }
       /* Dari is right-to-left. */
       .demo-body { min-width: 0; direction: rtl; text-align: right; flex: 1; }
       .demo-author {
         font-family: "Vazirmatn", Tahoma, sans-serif;
         font-weight: 750; font-size: 15px; margin-inline-end: 8px;
+        color: var(--studio-ink);
       }
-      .demo-platform { color: var(--muted); font-size: 12px; text-transform: capitalize; }
+      .demo-platform { color: var(--studio-muted); font-size: 12px; text-transform: capitalize; }
       .demo-text {
         margin-top: 3px;
         direction: rtl;
@@ -223,6 +213,7 @@
         font-size: 17px;
         font-weight: 450;
         line-height: 1.9;
+        color: var(--studio-ink);
       }
 
       .sandbox-form {
@@ -263,7 +254,7 @@
       }
       footer.signoff .rule::before, footer.signoff .rule::after {
         content: ""; flex: 1; height: 1px;
-        background: linear-gradient(90deg, transparent, var(--line), transparent);
+        background: var(--line);
       }
       footer.signoff .ar { font-family: "Vazirmatn", Tahoma, sans-serif; font-weight: 700; color: var(--gold); }
 

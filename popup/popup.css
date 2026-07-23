@@ -22,8 +22,7 @@
   --line: #e6e1d4;
   --stone: #8a8474;
 
-  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
-  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 * {
@@ -35,10 +34,7 @@ body {
   margin: 0;
   font-family: "Vazirmatn", system-ui, Tahoma, sans-serif;
   color: var(--ink);
-  background:
-    radial-gradient(120% 90% at 100% 0%, rgba(20, 122, 91, 0.08), transparent 60%),
-    radial-gradient(110% 80% at 0% 100%, rgba(200, 162, 74, 0.1), transparent 55%),
-    var(--ivory);
+  background: var(--ivory);
 }
 
 /* --- Header: emerald band, gold hairline, frosted status pill --- */
@@ -48,9 +44,7 @@ body {
   align-items: center;
   gap: 12px;
   padding: 16px 18px;
-  background:
-    radial-gradient(130% 160% at 0% 0%, rgba(235, 206, 132, 0.22), transparent 50%),
-    linear-gradient(135deg, var(--emerald-1), var(--emerald-deep));
+  background: var(--emerald-deep);
   border-bottom: 2px solid var(--gold-2);
   color: var(--ivory);
 }
@@ -91,16 +85,14 @@ body {
   font-size: 12.5px;
   font-weight: 700;
   color: var(--emerald-deep);
-  background: linear-gradient(180deg, var(--gold-1), var(--gold-2));
+  background: var(--gold-1);
   border: 1px solid rgba(120, 90, 20, 0.4);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 
 body.is-off .pill {
   color: var(--ivory);
   background: rgba(255, 255, 255, 0.12);
   border-color: rgba(255, 255, 255, 0.25);
-  box-shadow: none;
 }
 
 /* --- Card: the switch row --- */
@@ -111,10 +103,7 @@ body.is-off .pill {
   background: #fff;
   border: 1px solid var(--line);
   border-radius: 14px;
-  box-shadow:
-    0 1px 2px rgba(31, 42, 38, 0.05),
-    0 6px 18px rgba(31, 42, 38, 0.07),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  box-shadow: 0 1px 2px rgba(31, 42, 38, 0.05), 0 6px 18px rgba(31, 42, 38, 0.07);
 }
 
 .switch-row {
@@ -151,18 +140,13 @@ body.is-off .pill {
   padding: 0;
   border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 999px;
-  background: linear-gradient(180deg, #b9b3a4, var(--stone));
+  background: var(--stone);
   cursor: pointer;
-  transition: background 0.25s var(--ease-out), box-shadow 0.25s var(--ease-out);
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.25);
+  transition: background-color 0.2s var(--ease-out);
 }
 
 .switch[aria-checked="true"] {
-  background: linear-gradient(180deg, var(--emerald-1), var(--emerald-2));
-  box-shadow:
-    inset 0 1px 3px rgba(0, 0, 0, 0.25),
-    0 0 0 4px rgba(20, 122, 91, 0.12),
-    0 2px 10px rgba(20, 122, 91, 0.35);
+  background: var(--emerald-1);
 }
 
 .switch__knob {
@@ -172,9 +156,9 @@ body.is-off .pill {
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: linear-gradient(180deg, #fff, #f1ece0);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.9);
-  transition: inset-inline-start 0.25s var(--ease-spring);
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+  transition: inset-inline-start 0.2s var(--ease-out);
 }
 
 .switch[aria-checked="true"] .switch__knob {
@@ -195,8 +179,7 @@ body.is-off .pill {
   gap: 8px;
   margin: 0 16px;
   padding: 10px 2px 14px;
-  border-top: 1px solid transparent;
-  border-image: linear-gradient(90deg, transparent, var(--line) 30%, var(--line) 70%, transparent) 1;
+  border-top: 1px solid var(--line);
   font-size: 11.5px;
   color: var(--ink-soft);
 }
