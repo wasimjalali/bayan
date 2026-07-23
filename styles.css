@@ -41,12 +41,10 @@
   --bayan-amber-2: #9c6716;
 
   /* motion */
-  --bayan-ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
-  --bayan-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --bayan-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 
-  /* depth */
+  /* depth: one subtle elevation level, nothing else */
   --bayan-shadow-badge: 0 1px 2px rgba(0, 0, 0, 0.25), 0 2px 8px rgba(0, 0, 0, 0.18);
-  --bayan-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.18);
 }
 
 /*
@@ -74,9 +72,9 @@
   direction: rtl;
   unicode-bidi: isolate;
   border: 1px solid rgba(255, 255, 255, 0.18);
-  box-shadow: var(--bayan-shadow-badge), var(--bayan-highlight);
+  box-shadow: var(--bayan-shadow-badge);
   -webkit-font-smoothing: antialiased;
-  animation: syqf-pop 0.35s var(--bayan-ease-spring);
+  animation: syqf-pop 0.2s var(--bayan-ease-out);
 }
 
 /* A small status dot for instant recognition (language-neutral, RTL-safe). */
@@ -88,7 +86,6 @@
   border-radius: 50%;
   background: currentColor;
   opacity: 0.8;
-  box-shadow: 0 0 6px currentColor;
 }
 
 @keyframes syqf-pop {
@@ -104,38 +101,32 @@
 
 /* Continuation merge: two comments shown as one question. Emerald = safe/info. */
 .syqf-badge--joined {
-  background: linear-gradient(180deg, var(--bayan-emerald-1), var(--bayan-emerald-2));
-  box-shadow: var(--bayan-shadow-badge), 0 2px 10px rgba(20, 122, 91, 0.35), var(--bayan-highlight);
+  background: var(--bayan-emerald-2);
 }
 
 html:not(.bayan-disabled) .syqf-joined {
   border-inline-start: 3px solid var(--bayan-emerald-1);
   padding-inline-start: 9px;
-  border-radius: 5px;
+  border-radius: 0; /* square edge: the accent bar reads as one continuous spine */
   background-color: rgba(20, 122, 91, 0.07);
 }
 
-/* "asked N times" — the hero fact. A premium gold pill with dark ink text. */
+/* "asked N times" - the hero fact and the one loud element. Gold, ink text. */
 .syqf-count {
-  background: linear-gradient(180deg, var(--bayan-gold-1), var(--bayan-gold-2));
+  background: var(--bayan-gold-1);
   color: var(--bayan-ink);
   font-weight: 750;
   border-color: rgba(120, 90, 20, 0.45);
-  box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.2),
-    0 2px 12px rgba(200, 162, 74, 0.45),
-    inset 0 1px 0 rgba(255, 255, 255, 0.55);
 }
 
 /* A near-duplicate that was marked but NOT hidden. Muted stone = low priority. */
 .syqf-badge--dup {
-  background: linear-gradient(180deg, var(--bayan-stone-1), var(--bayan-stone-2));
+  background: var(--bayan-stone-2);
 }
 
 /* A second, self-contained question from the same person. Amber = needs a look. */
 .syqf-badge--extra {
-  background: linear-gradient(180deg, var(--bayan-amber-1), var(--bayan-amber-2));
-  box-shadow: var(--bayan-shadow-badge), 0 2px 10px rgba(217, 154, 61, 0.35), var(--bayan-highlight);
+  background: var(--bayan-amber-2);
 }
 
 /* Ambiguous cases are dimmed, never hidden (human stays in the loop). */
