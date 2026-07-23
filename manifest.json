@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Bayān — Live Q&A Filter",
+  "name": "Bayān - Live Q&A Filter",
   "version": "0.1.0",
-  "description": "بیان — cleans live Dari/Persian Q&A in StreamYard: collapses duplicates, merges split questions, flags extra questions. Reads the page DOM only (StreamYard has no API).",
+  "description": "بیان - cleans live Dari/Persian Q&A in StreamYard: collapses duplicates, merges split questions, flags extra questions. Reads the page DOM only (StreamYard has no API).",
   "icons": {
     "16": "icons/icon16.png",
     "32": "icons/icon32.png",
@@ -10,7 +10,7 @@
     "128": "icons/icon128.png"
   },
   "action": {
-    "default_title": "Bayān — Live Q&A Filter",
+    "default_title": "Bayān - Live Q&A Filter",
     "default_popup": "popup/popup.html",
     "default_icon": {
       "16": "icons/icon16.png",

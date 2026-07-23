@@ -108,6 +108,11 @@ const SCENARIOS = [
     expect: "Question + one continuation are kept and joined. The third piece is over the cap, so it's hidden. One person can't flood the feed as one long question.",
   },
   {
+    key: "doubleSend",
+    title: "8. Double-send: the same text sent twice, then the real continuation",
+    expect: "The re-send collapses as a duplicate (count badge, no doubled text). The continuation sent after it still joins the question.",
+  },
+  {
     key: "greetingThenQuestion",
     title: "7. A greeting first, then the real question a minute later",
     expect: "The greeting is left alone and never counts as the person's question, so the real question still comes through clean.",

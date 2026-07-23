@@ -72,6 +72,12 @@ export function render(decision, config) {
   if (!node) return;
   const dir = config.UI_DIRECTION;
 
+  // Idempotency: a row can be re-annotated after a container re-render, and its
+  // new decision may differ (state was rebuilt). Clear previous annotations so a
+  // stale class (especially syqf-collapsed) can never hide a now-kept question.
+  node.classList.remove("syqf-primary", "syqf-joined", "syqf-dim", "syqf-collapsed");
+  for (const b of node.querySelectorAll(".syqf-badge")) b.remove();
+
   switch (decision.type) {
     case "greeting":
       // A pure greeting/honorific. Not a question: leave the row exactly as
@@ -88,7 +94,19 @@ export function render(decision, config) {
       break;
 
     case "duplicate": {
-      setCountBadge(originalNodeOf(decision), decision.count, config);
+      const original = originalNodeOf(decision);
+
+      // Cost-asymmetry guard: if the original row is gone from the DOM
+      // (virtualized scroll or a re-render pruned it), or this row IS the
+      // representative already, it is the only visible copy of the question.
+      // Never hide it; adopt it so the count badge lands somewhere visible.
+      if (!original || original === node || !original.isConnected) {
+        if (decision.target?.firstComment) decision.target.firstComment.el = node;
+        setCountBadge(node, decision.count, config);
+        break;
+      }
+
+      setCountBadge(original, decision.count, config);
       const isExact = decision.kind === "exact";
       if (isExact && config.AUTO_COLLAPSE_EXACT_DUPLICATES && !config.AUTO_HIDE_ANYTHING_AMBIGUOUS) {
         node.classList.add("syqf-collapsed"); // data retained in state; only hidden

@@ -249,6 +249,26 @@ test("a greeting-only comment does not consume the person's one question slot", 
   assert.equal(decisions[1].type, "primary");
 });
 
+test("double-send: identical re-send inside the window collapses as a duplicate, never merges", () => {
+  const { decisions } = runStream(STREAMS.doubleSend);
+  assert.equal(decisions[0].type, "primary");
+  assert.equal(decisions[1].type, "duplicate");
+  assert.equal(decisions[1].kind, "exact");
+  assert.equal(decisions[1].count, 2);
+  // The re-send must not sit in the block as a fragment. (The block ends the
+  // stream with 2 fragments: the question + the GENUINE continuation, not 3.)
+  assert.ok(!decisions[0].block.fragments.includes(decisions[1].comment));
+});
+
+test("double-send keeps the block open: a genuine continuation after the re-send still merges", () => {
+  const { decisions } = runStream(STREAMS.doubleSend);
+  assert.equal(decisions[2].type, "continuation");
+  assert.equal(decisions[2].block.fragmentCount, 2);
+  // The merged text contains the question once, not doubled.
+  const hits = decisions[2].block.displayText.match(/سوال من در مورد زکات است که/g) ?? [];
+  assert.equal(hits.length, 1);
+});
+
 test("a bare greeting normalizes to isGreetingOnly", () => {
   assert.equal(normalize("سلام", CONFIG).isGreetingOnly, true);
   assert.equal(normalize("السلام علیکم", CONFIG).isGreetingOnly, true);

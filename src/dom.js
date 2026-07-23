@@ -61,6 +61,17 @@ export function closestCommentNode(node) {
   return node.closest?.(SELECTORS.commentNode) ?? null;
 }
 
+/**
+ * Comment rows nested INSIDE an added node. Covers the batch case a
+ * MutationObserver surfaces as one wrapper element containing several comment
+ * rows (virtualized lists and re-renders do this); closestCommentNode alone
+ * would miss all of them.
+ */
+export function commentNodesWithin(node) {
+  if (!node || node.nodeType !== Node.ELEMENT_NODE) return [];
+  return Array.from(node.querySelectorAll(SELECTORS.commentNode));
+}
+
 function readText(el) {
   return (el?.textContent ?? "").replace(/\s+/g, " ").trim();
 }
